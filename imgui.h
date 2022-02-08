@@ -64,13 +64,9 @@ Index of this file:
 
 // Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
-<<<<<<< HEAD
-#define IMGUI_VERSION               "1.87 WIP"
-#define IMGUI_VERSION_NUM           18615
-=======
-#define IMGUI_VERSION               "1.88 WIP"
-#define IMGUI_VERSION_NUM           18703
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
+
+#define IMGUI_VERSION               "1.87"
+#define IMGUI_VERSION_NUM           18701
 #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(ImDrawIdx))
 #define IMGUI_HAS_TABLE
 #define IMGUI_HAS_VIEWPORT          // Viewport WIP branch

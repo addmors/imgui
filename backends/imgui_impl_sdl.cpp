@@ -20,11 +20,9 @@
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
-<<<<<<< HEAD
-//  2022-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
-=======
 //  2022-02-04: Added SDL_Renderer* parameter to ImGui_ImplSDL2_InitForSDLRenderer(), so we can use SDL_GetRendererOutputSize() instead of SDL_GL_GetDrawableSize() when bound to a SDL_Renderer.
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
+//  2022-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2022-02-04: Added SDL_Renderer* parameter to ImGui_ImplSDL2_InitForSDLRenderer(), so we can use SDL_GetRendererOutputSize() instead of SDL_GL_GetDrawableSize() when bound to a SDL_Renderer.
 //  2022-01-26: Inputs: replaced short-lived io.AddKeyModsEvent() (added two weeks ago)with io.AddKeyEvent() using ImGuiKey_ModXXX flags. Sorry for the confusion.
 //  2021-01-20: Inputs: calling new io.AddKeyAnalogEvent() for gamepad support, instead of writing directly to io.NavInputs[].
 //  2022-01-17: Inputs: calling new io.AddMousePosEvent(), io.AddMouseButtonEvent(), io.AddMouseWheelEvent() API (1.87+).
@@ -93,25 +91,15 @@ static const Uint32 SDL_WINDOW_VULKAN = 0x10000000;
 // SDL Data
 struct ImGui_ImplSDL2_Data
 {
-<<<<<<< HEAD
-    SDL_Window* Window;
-    Uint64      Time;
-    Uint32      MouseWindowID;
-    int         MouseButtonsDown;
-    SDL_Cursor* MouseCursors[ImGuiMouseCursor_COUNT];
-    char*       ClipboardTextData;
-    bool        MouseCanUseGlobalState;
-    bool        UseVulkan;
-=======
     SDL_Window*     Window;
     SDL_Renderer*   Renderer;
     Uint64          Time;
+    Uint32          MouseWindowID;
     int             MouseButtonsDown;
     SDL_Cursor*     MouseCursors[ImGuiMouseCursor_COUNT];
     char*           ClipboardTextData;
     bool            MouseCanUseGlobalState;
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
-
+    bool            UseVulkan;
     ImGui_ImplSDL2_Data()   { memset(this, 0, sizeof(*this)); }
 };
 
@@ -358,11 +346,7 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
     return false;
 }
 
-<<<<<<< HEAD
-static bool ImGui_ImplSDL2_Init(SDL_Window* window, void* sdl_gl_context)
-=======
-static bool ImGui_ImplSDL2_Init(SDL_Window* window, SDL_Renderer* renderer)
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
+static bool ImGui_ImplSDL2_Init(SDL_Window* window, SDL_Renderer* renderer, void* sdl_gl_context)
 {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");
@@ -388,7 +372,7 @@ static bool ImGui_ImplSDL2_Init(SDL_Window* window, SDL_Renderer* renderer)
         io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;  // We can create multi-viewports on the Platform side (optional)
 
     // SDL on Linux/OSX doesn't report events for unfocused windows (see https://github.com/ocornut/imgui/issues/4960)
-#ifdef _WIN32
+#ifndef __APPLE__
     if (mouse_can_use_global_state)
         io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;// We can call io.AddMouseViewportEvent() with correct data (optional)
 #endif
@@ -445,12 +429,7 @@ static bool ImGui_ImplSDL2_Init(SDL_Window* window, SDL_Renderer* renderer)
 
 bool ImGui_ImplSDL2_InitForOpenGL(SDL_Window* window, void* sdl_gl_context)
 {
-<<<<<<< HEAD
-    return ImGui_ImplSDL2_Init(window, sdl_gl_context);
-=======
-    IM_UNUSED(sdl_gl_context); // Viewport branch will need this.
-    return ImGui_ImplSDL2_Init(window, NULL);
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
+    return ImGui_ImplSDL2_Init(window, NULL, sdl_gl_context);
 }
 
 bool ImGui_ImplSDL2_InitForVulkan(SDL_Window* window)
@@ -458,15 +437,11 @@ bool ImGui_ImplSDL2_InitForVulkan(SDL_Window* window)
 #if !SDL_HAS_VULKAN
     IM_ASSERT(0 && "Unsupported");
 #endif
-<<<<<<< HEAD
-    if (!ImGui_ImplSDL2_Init(window, NULL))
+    if (!ImGui_ImplSDL2_Init(window, NULL, NULL))
         return false;
     ImGui_ImplSDL2_Data* bd = ImGui_ImplSDL2_GetBackendData();
     bd->UseVulkan = true;
     return true;
-=======
-    return ImGui_ImplSDL2_Init(window, NULL);
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
 }
 
 bool ImGui_ImplSDL2_InitForD3D(SDL_Window* window)
@@ -474,21 +449,17 @@ bool ImGui_ImplSDL2_InitForD3D(SDL_Window* window)
 #if !defined(_WIN32)
     IM_ASSERT(0 && "Unsupported");
 #endif
-    return ImGui_ImplSDL2_Init(window, NULL);
+    return ImGui_ImplSDL2_Init(window, NULL, NULL);
 }
 
 bool ImGui_ImplSDL2_InitForMetal(SDL_Window* window)
 {
-    return ImGui_ImplSDL2_Init(window, NULL);
+    return ImGui_ImplSDL2_Init(window, NULL, NULL);
 }
 
 bool ImGui_ImplSDL2_InitForSDLRenderer(SDL_Window* window, SDL_Renderer* renderer)
 {
-<<<<<<< HEAD
-    return ImGui_ImplSDL2_Init(window, NULL);
-=======
-    return ImGui_ImplSDL2_Init(window, renderer);
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
+    return ImGui_ImplSDL2_Init(window, renderer, NULL);
 }
 
 void ImGui_ImplSDL2_Shutdown()

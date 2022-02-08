@@ -32,7 +32,6 @@ HOW TO UPDATE?
 
 
 -----------------------------------------------------------------------
-<<<<<<< HEAD
  DOCKING+MULTI-VIEWPORT BRANCH (In Progress)
 -----------------------------------------------------------------------
 
@@ -100,10 +99,7 @@ Other changes:
 
 
 -----------------------------------------------------------------------
- VERSION 1.87 WIP (In Progress)
-=======
  VERSION 1.88 WIP (In Progress)
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
 -----------------------------------------------------------------------
 
 Breaking changes:
@@ -115,6 +111,8 @@ Other Changes:
 
 
 -----------------------------------------------------------------------
+=======
+>>>>>>> aa8680009248061c83f3d6722ec53c1a320d872b
  VERSION 1.87 (Released 2022-02-07)
 -----------------------------------------------------------------------
 
@@ -256,6 +254,11 @@ Other Changes:
 
 Docking+Viewports Branch:
 
+- Docking: Fixed a CTRL+TAB crash when aiming at an empty docked window. (#4792)
+- Docking: Tabs use their own identifier instead of the Window identifier.
+  (This will invalidate some stored .ini data such as last selected tab, sorry!)
+- Docking: Fixed size constraints not working on single window holding on a dock id (still doesn't work on docked windows).
+- Docking: Fixed CTRL+TAB back into a docked window not selecting menu layer when no item are on main layer.
 - Viewports, IO: Added io.AddMouseViewportEvent() function to queue hovered viewport change (when known by backend).
 - Viewports: Relaxed specs for backend supporting ImGuiBackendFlags_HasMouseHoveredViewport: it is now _optional_
   for the backend to have to ignore viewports with the _NoInputs flag when call io.AddMouseViewportEvent(). It is
@@ -265,7 +268,6 @@ Docking+Viewports Branch:
   io.AddMouseViewportEvent() function, then Dear ImGui will revert to its flawed heuristic to find the viewport under.
   By lowering those specs, we allow the SDL and more backend to support this, only relying on the heuristic in a few
   drag and drop situations rather that relying on it everywhere.
-- Docking: Fixed a CTRL+TAB crash when aiming at an empty docked window. (#4792)
 - Viewports: Fixed a CTRL+TAB crash with viewports enabled when the window list needs to appears in
   its own viewport (regression from 1.86). (#4023, #787)
 - Viewports: Fixed active InputText() from preventing viewports to merge. (#4212)
