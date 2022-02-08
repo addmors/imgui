@@ -1,4 +1,4 @@
-// dear imgui, v1.87 WIP
+// dear imgui, 1.88 WIP
 // (main code and documentation)
 
 // Help:
@@ -385,6 +385,7 @@ CODE
  When you are not sure about an old symbol or function name, try using the Search/Find function of your IDE to look for comments or references in all imgui files.
  You can read releases logs https://github.com/ocornut/imgui/releases for more details.
 
+<<<<<<< HEAD
 (Docking/Viewport Branch)
  - 2021/XX/XX (1.XX) - when multi-viewports are enabled, all positions will be in your natural OS coordinates space. It means that:
                         - reference to hard-coded positions such as in SetNextWindowPos(ImVec2(0,0)) are probably not what you want anymore.
@@ -392,6 +393,8 @@ CODE
                         - likewise io.MousePos and GetMousePos() will use OS coordinates.
                           If you query mouse positions to interact with non-imgui coordinates you will need to offset them, e.g. subtract GetWindowViewport()->Pos.
 
+=======
+>>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
  - 2022/01/20 (1.87) - inputs: reworded gamepad IO.
                         - Backend writing to io.NavInputs[]            -> backend should call io.AddKeyEvent()/io.AddKeyAnalogEvent() with ImGuiKey_GamepadXXX values.
  - 2022/01/19 (1.87) - sliders, drags: removed support for legacy arithmetic operators (+,+-,*,/) when inputing text. This doesn't break any api/code but a feature that used to be accessible by end-users (which seemingly no one used).
@@ -1134,7 +1137,7 @@ ImGuiIO::ImGuiIO()
 {
     // Most fields are initialized with zero
     memset(this, 0, sizeof(*this));
-    IM_ASSERT(IM_ARRAYSIZE(ImGuiIO::MouseDown) == ImGuiMouseButton_COUNT && IM_ARRAYSIZE(ImGuiIO::MouseClicked) == ImGuiMouseButton_COUNT); // Our pre-C++11 IM_STATIC_ASSERT() macros triggers warning on modern compilers so we don't use it here.
+    IM_STATIC_ASSERT(IM_ARRAYSIZE(ImGuiIO::MouseDown) == ImGuiMouseButton_COUNT && IM_ARRAYSIZE(ImGuiIO::MouseClicked) == ImGuiMouseButton_COUNT);
 
     // Settings
     ConfigFlags = ImGuiConfigFlags_None;
@@ -3249,6 +3252,32 @@ void ImGui::RenderNavHighlight(const ImRect& bb, ImGuiID id, ImGuiNavHighlightFl
     }
 }
 
+void ImGui::RenderMouseCursor(ImVec2 base_pos, float base_scale, ImGuiMouseCursor mouse_cursor, ImU32 col_fill, ImU32 col_border, ImU32 col_shadow)
+{
+    ImGuiContext& g = *GImGui;
+    IM_ASSERT(mouse_cursor > ImGuiMouseCursor_None && mouse_cursor < ImGuiMouseCursor_COUNT);
+    for (int n = 0; n < g.Viewports.Size; n++)
+    {
+        ImGuiViewportP* viewport = g.Viewports[n];
+        ImDrawList* draw_list = GetForegroundDrawList(viewport);
+        ImFontAtlas* font_atlas = draw_list->_Data->Font->ContainerAtlas;
+        ImVec2 offset, size, uv[4];
+        if (font_atlas->GetMouseCursorTexData(mouse_cursor, &offset, &size, &uv[0], &uv[2]))
+        {
+            const ImVec2 pos = base_pos - offset;
+            const float scale = base_scale;
+            ImTextureID tex_id = font_atlas->TexID;
+            draw_list->PushTextureID(tex_id);
+            draw_list->AddImage(tex_id, pos + ImVec2(1, 0) * scale, pos + (ImVec2(1, 0) + size) * scale, uv[2], uv[3], col_shadow);
+            draw_list->AddImage(tex_id, pos + ImVec2(2, 0) * scale, pos + (ImVec2(2, 0) + size) * scale, uv[2], uv[3], col_shadow);
+            draw_list->AddImage(tex_id, pos,                        pos + size * scale,                  uv[2], uv[3], col_border);
+            draw_list->AddImage(tex_id, pos,                        pos + size * scale,                  uv[0], uv[1], col_fill);
+            draw_list->PopTextureID();
+        }
+    }
+}
+
+
 //-----------------------------------------------------------------------------
 // [SECTION] MAIN CODE (most of the code! lots of stuff, needs tidying up!)
 //-----------------------------------------------------------------------------
@@ -5122,6 +5151,7 @@ void ImGui::Render()
         if (windows_to_render_top_most[n] && IsWindowActiveAndVisible(windows_to_render_top_most[n])) // NavWindowingTarget is always temporarily displayed as the top-most window
             AddRootWindowToDrawData(windows_to_render_top_most[n]);
 
+<<<<<<< HEAD
     // Draw modal/window whitening backgrounds
     if (first_render_of_frame)
         RenderDimmedBackgrounds();
@@ -5129,6 +5159,11 @@ void ImGui::Render()
     ImVec2 mouse_cursor_offset, mouse_cursor_size, mouse_cursor_uv[4];
     if (g.IO.MouseDrawCursor && g.MouseCursor != ImGuiMouseCursor_None)
         g.IO.Fonts->GetMouseCursorTexData(g.MouseCursor, &mouse_cursor_offset, &mouse_cursor_size, &mouse_cursor_uv[0], &mouse_cursor_uv[2]);
+=======
+    // Draw software mouse cursor if requested by io.MouseDrawCursor flag
+    if (g.IO.MouseDrawCursor && first_render_of_frame && g.MouseCursor != ImGuiMouseCursor_None)
+        RenderMouseCursor(g.IO.MousePos, g.Style.MouseCursorScale, g.MouseCursor, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32(0, 0, 0, 48));
+>>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
 
     // Setup ImDrawData structures for end-user
     g.IO.MetricsRenderVertices = g.IO.MetricsRenderIndices = 0;
@@ -5137,6 +5172,7 @@ void ImGui::Render()
         ImGuiViewportP* viewport = g.Viewports[n];
         viewport->DrawDataBuilder.FlattenIntoSingleLayer();
 
+<<<<<<< HEAD
         // Draw software mouse cursor if requested by io.MouseDrawCursor flag
         // (note we scale cursor by current viewport/monitor, however Windows 10 for its own hardware cursor seems to be using a different scale factor)
         if (mouse_cursor_size.x > 0.0f && mouse_cursor_size.y > 0.0f && first_render_of_frame)
@@ -5146,6 +5182,8 @@ void ImGui::Render()
                 RenderMouseCursor(GetForegroundDrawList(viewport), g.IO.MousePos, scale, g.MouseCursor, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32(0, 0, 0, 48));
         }
 
+=======
+>>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
         // Add foreground ImDrawList (for each active viewport)
         if (viewport->DrawLists[1] != NULL)
             AddDrawListToDrawData(&viewport->DrawDataBuilder.Layers[0], GetForegroundDrawList(viewport));
@@ -6758,8 +6796,22 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
             }
         }
 
+<<<<<<< HEAD
         // Decide if we are going to handle borders and resize grips
         const bool handle_borders_and_resize_grips = (window->DockNodeAsHost || !window->DockIsActive);
+=======
+        // [Test Engine] Register whole window in the item system
+#ifdef IMGUI_ENABLE_TEST_ENGINE
+        if (g.TestEngineHookItems)
+        {
+            IM_ASSERT(window->IDStack.Size == 1);
+            window->IDStack.Size = 0;
+            IMGUI_TEST_ENGINE_ITEM_ADD(window->Rect(), window->ID);
+            IMGUI_TEST_ENGINE_ITEM_INFO(window->ID, window->Name, (g.HoveredWindow == window) ? ImGuiItemStatusFlags_HoveredRect : 0);
+            window->IDStack.Size = 1;
+        }
+#endif
+>>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
 
         // Handle manual resize: Resize Grips, Borders, Gamepad
         int border_held = -1;
@@ -7030,10 +7082,9 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         else
             SetLastItemData(window->MoveId, g.CurrentItemFlags, IsMouseHoveringRect(title_bar_rect.Min, title_bar_rect.Max, false) ? ImGuiItemStatusFlags_HoveredRect : 0, title_bar_rect);
 
-#ifdef IMGUI_ENABLE_TEST_ENGINE
+        // [Test Engine] Register title bar / tab
         if (!(window->Flags & ImGuiWindowFlags_NoTitleBar))
             IMGUI_TEST_ENGINE_ITEM_ADD(g.LastItemData.Rect, g.LastItemData.ID);
-#endif
     }
     else
     {
@@ -18634,27 +18685,44 @@ void ImGui::DebugHookIdInfo(ImGuiID id, ImGuiDataType data_type, const void* dat
     ImGuiStackLevelInfo* info = &tool->Results[tool->StackLevel];
     IM_ASSERT(info->ID == id && info->QueryFrameCount > 0);
 
-    int data_len;
     switch (data_type)
     {
     case ImGuiDataType_S32:
         ImFormatString(info->Desc, IM_ARRAYSIZE(info->Desc), "%d", (int)(intptr_t)data_id);
         break;
     case ImGuiDataType_String:
-        data_len = data_id_end ? (int)((const char*)data_id_end - (const char*)data_id) : (int)strlen((const char*)data_id);
-        ImFormatString(info->Desc, IM_ARRAYSIZE(info->Desc), "\"%.*s\"", data_len, (const char*)data_id);
+        ImFormatString(info->Desc, IM_ARRAYSIZE(info->Desc), "%.*s", data_id_end ? (int)((const char*)data_id_end - (const char*)data_id) : (int)strlen((const char*)data_id), (const char*)data_id);
         break;
     case ImGuiDataType_Pointer:
         ImFormatString(info->Desc, IM_ARRAYSIZE(info->Desc), "(void*)0x%p", data_id);
         break;
     case ImGuiDataType_ID:
-        if (info->Desc[0] == 0) // PushOverrideID() is often used to avoid hashing twice, which would lead to 2 calls to DebugHookIdInfo(). We prioritize the first one.
-            ImFormatString(info->Desc, IM_ARRAYSIZE(info->Desc), "0x%08X [override]", id);
+        if (info->Desc[0] != 0) // PushOverrideID() is often used to avoid hashing twice, which would lead to 2 calls to DebugHookIdInfo(). We prioritize the first one.
+            return;
+        ImFormatString(info->Desc, IM_ARRAYSIZE(info->Desc), "0x%08X [override]", id);
         break;
     default:
         IM_ASSERT(0);
     }
     info->QuerySuccess = true;
+    info->DataType = data_type;
+}
+
+static int StackToolFormatLevelInfo(ImGuiStackTool* tool, int n, bool format_for_ui, char* buf, size_t buf_size)
+{
+    ImGuiStackLevelInfo* info = &tool->Results[n];
+    ImGuiWindow* window = (info->Desc[0] == 0 && n == 0) ? ImGui::FindWindowByID(info->ID) : NULL;
+    if (window)                                                                 // Source: window name (because the root ID don't call GetID() and so doesn't get hooked)
+        return ImFormatString(buf, buf_size, format_for_ui ? "\"%s\" [window]" : "%s", window->Name);
+    if (info->QuerySuccess)                                                     // Source: GetID() hooks (prioritize over ItemInfo() because we frequently use patterns like: PushID(str), Button("") where they both have same id)
+        return ImFormatString(buf, buf_size, (format_for_ui && info->DataType == ImGuiDataType_String) ? "\"%s\"" : "%s", info->Desc);
+    if (tool->StackLevel < tool->Results.Size)                                  // Only start using fallback below when all queries are done, so during queries we don't flickering ??? markers.
+        return (*buf = 0);
+#ifdef IMGUI_ENABLE_TEST_ENGINE
+    if (const char* label = ImGuiTestEngine_FindItemDebugLabel(GImGui, info->ID))   // Source: ImGuiTestEngine's ItemInfo()
+        return ImFormatString(buf, buf_size, format_for_ui ? "??? \"%s\"" : "%s", label);
+#endif
+    return ImFormatString(buf, buf_size, "???");
 }
 
 // Stack Tool: Display UI
@@ -18670,6 +18738,7 @@ void ImGui::ShowStackToolWindow(bool* p_open)
     }
 
     // Display hovered/active status
+    ImGuiStackTool* tool = &g.DebugStackTool;
     const ImGuiID hovered_id = g.HoveredIdPreviousFrame;
     const ImGuiID active_id = g.ActiveId;
 #ifdef IMGUI_ENABLE_TEST_ENGINE
@@ -18680,8 +18749,33 @@ void ImGui::ShowStackToolWindow(bool* p_open)
     SameLine();
     MetricsHelpMarker("Hover an item with the mouse to display elements of the ID Stack leading to the item's final ID.\nEach level of the stack correspond to a PushID() call.\nAll levels of the stack are hashed together to make the final ID of a widget (ID displayed at the bottom level of the stack).\nRead FAQ entry about the ID stack for details.");
 
+    // CTRL+C to copy path
+    const float time_since_copy = (float)g.Time - tool->CopyToClipboardLastTime;
+    Checkbox("Ctrl+C: copy path to clipboard", &tool->CopyToClipboardOnCtrlC);
+    SameLine();
+    TextColored((time_since_copy >= 0.0f && time_since_copy < 0.75f && ImFmod(time_since_copy, 0.25f) < 0.25f * 0.5f) ? ImVec4(1.f, 1.f, 0.3f, 1.f) : ImVec4(), "*COPIED*");
+    if (tool->CopyToClipboardOnCtrlC && IsKeyDown(ImGuiKey_ModCtrl) && IsKeyPressed(ImGuiKey_C))
+    {
+        tool->CopyToClipboardLastTime = (float)g.Time;
+        char* p = g.TempBuffer;
+        char* p_end = p + IM_ARRAYSIZE(g.TempBuffer);
+        for (int stack_n = 0; stack_n < tool->Results.Size && p + 3 < p_end; stack_n++)
+        {
+            *p++ = '/';
+            char level_desc[256];
+            StackToolFormatLevelInfo(tool, stack_n, false, level_desc, IM_ARRAYSIZE(level_desc));
+            for (int n = 0; level_desc[n] && p + 2 < p_end; n++)
+            {
+                if (level_desc[n] == '/')
+                    *p++ = '\\';
+                *p++ = level_desc[n];
+            }
+        }
+        *p = '\0';
+        SetClipboardText(g.TempBuffer);
+    }
+
     // Display decorated stack
-    ImGuiStackTool* tool = &g.DebugStackTool;
     tool->LastActiveFrame = g.FrameCount;
     if (tool->Results.Size > 0 && BeginTable("##table", 3, ImGuiTableFlags_Borders))
     {
@@ -18695,23 +18789,9 @@ void ImGui::ShowStackToolWindow(bool* p_open)
             ImGuiStackLevelInfo* info = &tool->Results[n];
             TableNextColumn();
             Text("0x%08X", (n > 0) ? tool->Results[n - 1].ID : 0);
-
             TableNextColumn();
-            ImGuiWindow* window = (info->Desc[0] == 0 && n == 0) ? FindWindowByID(info->ID) : NULL;
-            if (window)                                         // Source: window name (because the root ID don't call GetID() and so doesn't get hooked)
-                Text("\"%s\" [window]", window->Name);
-            else if (info->QuerySuccess)                        // Source: GetID() hooks (prioritize over ItemInfo() because we frequently use patterns like: PushID(str), Button("") where they both have same id)
-                TextUnformatted(info->Desc);
-            else if (tool->StackLevel >= tool->Results.Size)    // Only start using fallback below when all queries are done, so during queries we don't flickering ??? markers.
-            {
-#ifdef IMGUI_ENABLE_TEST_ENGINE
-                if (const char* label = ImGuiTestEngine_FindItemDebugLabel(&g, info->ID))    // Source: ImGuiTestEngine's ItemInfo()
-                    Text("??? \"%s\"", label);
-                else
-#endif
-                    TextUnformatted("???");
-            }
-
+            StackToolFormatLevelInfo(tool, n, true, g.TempBuffer, IM_ARRAYSIZE(g.TempBuffer));
+            TextUnformatted(g.TempBuffer);
             TableNextColumn();
             Text("0x%08X", info->ID);
             if (n == tool->Results.Size - 1)
