@@ -1,12 +1,8 @@
 project "ImGui"
 	kind "StaticLib"
 	language "C++"
-<<<<<<< HEAD
 	cppdialect "C++17"
     	staticruntime "on"
-=======
-    staticruntime "off"
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -28,13 +24,6 @@ project "ImGui"
 
 	filter "system:windows"
 		systemversion "latest"
-<<<<<<< HEAD
-=======
-		cppdialect "C++17"
-        defines {
-			"IMGUI_API=__declspec(dllexport)",
-        }
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
 
 	filter "system:linux"
 		pic "On"
@@ -48,7 +37,4 @@ project "ImGui"
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "on"
-<<<<<<< HEAD
 
-=======
->>>>>>> d4e0bc339ffb4525e8e93e72d04ae62d3c53f94c
